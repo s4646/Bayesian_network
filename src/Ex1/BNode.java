@@ -4,6 +4,7 @@ public class BNode {
 	
 	private String name;
 	private String probs;
+	private double[][] probas;
 	private BNode[] kids;
 	private BNode[] fathers;
 	
@@ -15,8 +16,8 @@ public class BNode {
 	}
 	
 	/**
-	 * Given array of Nodes, set them as fathers of this Node.
-	 * @param a Array of Nodes
+	 * Given array of BNodes, set them as fathers of this BNode.
+	 * @param a Array of BNodes
 	 */
 	public void setFathers(BNode[] a) {
 		for (int i = 0; i < a.length; i++) {
@@ -28,7 +29,7 @@ public class BNode {
 	
 	/**
 	 * Given BNode, set it as kid of this BNode.
-	 * @param k Array of Nodes
+	 * @param k BNode
 	 */
 	public void setKid(BNode k) {
 		for (int i = 0; i < kids.length; i++) {
@@ -40,9 +41,50 @@ public class BNode {
 			}
 		}
 	}
+	/**
+	 * Given String of probabilities, set this Bnode's probabilities.
+	 * @param s String
+	 */
+	public void setProbs(String s) {
+		probs = s;
+	}
+	
+	/**
+	 * Get the number of this BNode's fathers.
+	 * @return len int
+	 */
+	private int getFathersLen() {
+		int len = 0;
+		for (int i = 0; i < fathers.length; i++) {
+			if(fathers[i]!=null)
+				len++;
+		}
+		return len;
+	}
+	/**
+	 * Given a String of probabilities and the number of the probabilities, set this BNode's 2D array of probabilities.
+	 * @param probs String
+	 * @param len int
+	 */
+	public void setProbasTable(String probs, int len) {
+		int numOfVars = getFathersLen()==0 ? 1 : getFathersLen();
+		String[] test = probs.split(" ");
+		probas = new double[len/(len/numOfVars)][];
+		
+		for (int i = 0; i < probas.length; i++) { // Initiate 2D array of probabilities.
+			probas[i] = new double[len/numOfVars];
+		}
+		
+		for (int i = 0; i < probas.length; i++) {
+			for (int j = 0; j < probas[i].length; j++) {
+				probas[i][j] = Double.valueOf(test[numOfVars*i+j]);
+			}
+		}	
+	}
 	
 	public String getName() {return name;}
 	public String getProbs() {return probs;}
+	public double[][] getProbsTable() {return probas;}
 	public BNode[] getFathers() {return fathers;}
 	public BNode[] getKids() {return kids;}
 	

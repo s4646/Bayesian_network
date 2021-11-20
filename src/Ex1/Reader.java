@@ -84,9 +84,38 @@ public class Reader {
 			}
 		}
 	}
+	/**
+	 * Given mxlFile and a network, set the network's probabilities.
+	 * @param xmlFile
+	 * @param network
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	public static void setNetworkProbas(File xmlFile, Network network) throws SAXException, IOException, ParserConfigurationException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder dBuilder = factory.newDocumentBuilder();
+	    Document doc = dBuilder.parse(xmlFile);
+	    
+	    NodeList nList1 = doc.getElementsByTagName("TABLE");
+	    NodeList nList2 = doc.getElementsByTagName("NAME");
+	    
+	    for (int i = 0; i < nList1.getLength(); i++) {
+            Node nNode1 = nList1.item(i);
+            Node nNode2 = nList2.item(i);
+            
+            String s = nNode1.getTextContent();
+            //System.out.println(s);
+            String[] test = s.split(" ");
+            //System.out.println(test.length);
+            
+            network.getNode(nNode2.getTextContent()).setProbs(s);
+            network.getNode(nNode2.getTextContent()).setProbasTable(s, test.length);
+	    }
+	}
 	
 	
-	public static void main(String args[]) throws SAXException, IOException, ParserConfigurationException{
+	public static void main(String args[]) throws SAXException, IOException, ParserConfigurationException {
 		
 		File xmlFile = new File("data/alarm_net.xml");
 		
@@ -101,6 +130,12 @@ public class Reader {
 	    
 	    setNetworkConnections(xmlFile, network);
 	    
-        System.out.println(network);
+	    setNetworkProbas(xmlFile, network);
+	    
+//	    for (int i = 0; i < network.getNetwork().length; i++) {
+//			BNode n = network.getNetwork()[i];
+//			System.out.println();
+//		}
+	    System.out.println(network);
 	}	    
 }
