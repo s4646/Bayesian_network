@@ -4,10 +4,10 @@ import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
-import org.w3c.dom.Element;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.Scanner;
 
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -113,7 +113,38 @@ public class Reader {
             network.getNode(nNode2.getTextContent()).setProbasTable(s, test.length);
 	    }
 	}
-	
+	/**
+	 * Read queries from input file for Bayes Ball.
+	 * @return queries Array of Strings
+	 * @throws FileNotFoundException
+	 */
+	public static String[] readInputBB() throws FileNotFoundException{
+		File f = new File("data/input.txt");
+		Scanner sc = new Scanner(f);
+		String s = "";
+		int len = 0;
+		while (sc.hasNextLine()) {
+			s = sc.nextLine();
+	    	if(s.contains("|") && !s.contains("P("))
+	    		len++;
+	    }
+		
+		sc.close();
+		sc = new Scanner(f);
+		s = "";
+		String[] queries = new String[len];
+		
+		for (int i = 0; sc.hasNextLine();) {
+			s = sc.nextLine();
+	    	if(s.contains("|") && !s.contains("P")) {
+	    		queries[i]=s;
+	    		i++;
+	    	}
+	    }
+		sc.close();
+		return queries;
+	    
+	}
 	
 	public static void main(String args[]) throws SAXException, IOException, ParserConfigurationException {
 		
@@ -136,6 +167,10 @@ public class Reader {
 //			BNode n = network.getNetwork()[i];
 //			System.out.println();
 //		}
-	    System.out.println(network);
+	    
+	    //System.out.println(network);
+	    readInputBB();
+	    BayesBall b = new BayesBall(network);
+	    b.readQueries(readInputBB());
 	}	    
 }
