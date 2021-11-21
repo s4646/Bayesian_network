@@ -4,15 +4,21 @@ public class BNode {
 	
 	private String name;
 	private String probs;
-	private double[][] probas;
+	private double[][] CPT;
 	private BNode[] kids;
 	private BNode[] fathers;
+	private boolean isGiven;
+	private boolean visitedFromDad;
+	private boolean visitedFromKid;
 	
 	public BNode(String n, String p, int len) {
 		name = n;
 		probs = p;
 		kids = new BNode[len];
 		fathers = new BNode[len];
+		isGiven=false;
+		visitedFromDad=false;
+		visitedFromKid=false;
 	}
 	
 	/**
@@ -69,24 +75,31 @@ public class BNode {
 	public void setProbasTable(String probs, int len) {
 		int numOfVars = getFathersLen()==0 ? 1 : getFathersLen();
 		String[] test = probs.split(" ");
-		probas = new double[len/(len/numOfVars)][];
+		CPT = new double[len/(len/numOfVars)][];
 		
-		for (int i = 0; i < probas.length; i++) { // Initiate 2D array of probabilities.
-			probas[i] = new double[len/numOfVars];
+		for (int i = 0; i < CPT.length; i++) { // Initiate 2D array of probabilities.
+			CPT[i] = new double[len/numOfVars];
 		}
 		
-		for (int i = 0; i < probas.length; i++) {
-			for (int j = 0; j < probas[i].length; j++) {
-				probas[i][j] = Double.valueOf(test[numOfVars*i+j]);
+		for (int i = 0; i < CPT.length; i++) {
+			for (int j = 0; j < CPT[i].length; j++) {
+				CPT[i][j] = Double.valueOf(test[numOfVars*i+j]);
 			}
 		}	
 	}
+	public void setIsGiven(boolean i) {isGiven=i;}
+	public void setVisitedFromDad(boolean b) {visitedFromDad=b;}
+	public void setVisitedFromKid(boolean b) {visitedFromKid=b;}
 	
 	public String getName() {return name;}
 	public String getProbs() {return probs;}
-	public double[][] getProbsTable() {return probas;}
+	public double[][] getProbsTable() {return CPT;}
 	public BNode[] getFathers() {return fathers;}
 	public BNode[] getKids() {return kids;}
+	public boolean getIsGiven() {return isGiven;}
+	public boolean getVisitedFromDad() {return visitedFromDad;}
+	public boolean getVisitedFromKid() {return visitedFromKid;}
+
 	
 	public String toString() {
 		return name;

@@ -2,31 +2,27 @@ package Ex1;
 
 public class BBNode {
 	
+	private String name;
 	private BNode b;
-	boolean direction;
-	boolean isGiven;
+	private boolean direction;
 	
 	public BBNode(BNode n) {
+		name=n.getName();
 		b=n;
-		direction=true;
-		isGiven=false;
+		direction=true; // from father
+	}
+	public BBNode(BNode n, boolean dir) {
+		b=n;
+		direction=dir;
 	}
 	public void setDirection(boolean d) {
 		direction=d;
 	}
-	public void setIsGiven(boolean i) {
-		isGiven=i;
-	}
+	public BNode getBNode() {return b;}
+	public boolean getDirection() {return direction;}
+	public String getName() {return name;}
+	
 	public String toString() {
-		if(direction)
-			if(isGiven)
-				return ""+b+", given, from father";
-			else
-				return ""+b+", not given, from father";
-		else
-			if(isGiven)
-				return ""+b+", given, from child";
-			else
-				return ""+b+", not given, from child";
+		return ""+b+" , "+direction;
 	}
 }

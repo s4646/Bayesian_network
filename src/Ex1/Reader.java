@@ -168,7 +168,7 @@ public class Reader {
 //			System.out.println();
 //		}
 	    
-	    //System.out.println(network);
+	    System.out.println(network);
 	    readInputBB();
 	    BayesBall b = new BayesBall(network);
 	    b.readQueries(readInputBB());
