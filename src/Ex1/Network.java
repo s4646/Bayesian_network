@@ -1,4 +1,5 @@
 package Ex1;
+// Bayesian Network
 public class Network {
 	
 	private BNode[] netArr;

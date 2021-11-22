@@ -1,6 +1,6 @@
 package Ex1;
 import java.util.Stack;
-
+// Bayes Ball Algorithm
 public class BayesBall {
 	private Stack<BNode> s1;
 	private Stack<BBNode> s2;

@@ -1,5 +1,5 @@
 package Ex1;
-
+// Bayesian Node
 public class BNode {
 	
 	private String name;
@@ -54,31 +54,19 @@ public class BNode {
 	public void setProbs(String s) {
 		probs = s;
 	}
-	
-	/**
-	 * Get the number of this BNode's fathers.
-	 * @return len int
-	 */
-	private int getFathersLen() {
-		int len = 0;
-		for (int i = 0; i < fathers.length; i++) {
-			if(fathers[i]!=null)
-				len++;
-		}
-		return len;
-	}
 	/**
 	 * Given a String of probabilities and the number of the probabilities, set this BNode's 2D array of probabilities.
 	 * @param probs String
 	 * @param len int
 	 */
-	public void setProbasTable(String probs, int len) {
-		int numOfVars = getFathersLen()==0 ? 1 : getFathersLen();
+	public void setCPT(String probs, int len) {
+		int tmp = getNumFathers();
+		int numOfVars = tmp==0 ? 1 : tmp==1 ? 2 : tmp;
 		String[] test = probs.split(" ");
-		CPT = new double[len/(len/numOfVars)][];
+		CPT = new double[len/numOfVars][];
 		
 		for (int i = 0; i < CPT.length; i++) { // Initiate 2D array of probabilities.
-			CPT[i] = new double[len/numOfVars];
+			CPT[i] = new double[len/(len/numOfVars)];
 		}
 		
 		for (int i = 0; i < CPT.length; i++) {
@@ -99,6 +87,14 @@ public class BNode {
 	public boolean getIsGiven() {return isGiven;}
 	public boolean getVisitedFromDad() {return visitedFromDad;}
 	public boolean getVisitedFromKid() {return visitedFromKid;}
+	public double[][] getCPT() {return CPT;}
+	public int getNumFathers() {
+		int count=0;
+		for (int i = 0; i < fathers.length; i++)
+			if(fathers[i]!=null)
+				count++;
+		return count;
+	}
 
 	
 	public String toString() {

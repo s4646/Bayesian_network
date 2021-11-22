@@ -110,7 +110,7 @@ public class Reader {
             //System.out.println(test.length);
             
             network.getNode(nNode2.getTextContent()).setProbs(s);
-            network.getNode(nNode2.getTextContent()).setProbasTable(s, test.length);
+            network.getNode(nNode2.getTextContent()).setCPT(s, test.length);
 	    }
 	}
 	/**
@@ -136,7 +136,7 @@ public class Reader {
 		
 		for (int i = 0; sc.hasNextLine();) {
 			s = sc.nextLine();
-	    	if(s.contains("|") && !s.contains("P")) {
+	    	if(s.contains("|") && !s.contains("P(")) {
 	    		queries[i]=s;
 	    		i++;
 	    	}
@@ -172,5 +172,8 @@ public class Reader {
 	    readInputBB();
 	    BayesBall b = new BayesBall(network);
 	    b.readQueries(readInputBB());
+	    System.out.println();
+	    CPT a = new CPT(network.getNode("A"));
+	    a.setBools();
 	}	    
 }
