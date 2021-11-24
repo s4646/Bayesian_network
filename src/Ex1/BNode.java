@@ -3,6 +3,7 @@ package Ex1;
 public class BNode {
 	
 	private String name;
+	private String[] values;
 	private String probs;
 	private double[][] CPT;
 	private BNode[] kids;
@@ -75,6 +76,13 @@ public class BNode {
 			}
 		}	
 	}
+	public void setValues(String[] arr) {
+		values = new String[arr.length-2];
+		for (int i = 0; i < values.length; i++) {
+			values[i]=arr[i+2].split("\t")[1];
+			//test[1].split("\t")[1]
+		}
+	}
 	public void setIsGiven(boolean i) {isGiven=i;}
 	public void setVisitedFromDad(boolean b) {visitedFromDad=b;}
 	public void setVisitedFromKid(boolean b) {visitedFromKid=b;}
@@ -87,6 +95,7 @@ public class BNode {
 	public boolean getIsGiven() {return isGiven;}
 	public boolean getVisitedFromDad() {return visitedFromDad;}
 	public boolean getVisitedFromKid() {return visitedFromKid;}
+	public String[] getValues() {return values;}
 	public double[][] getCPT() {return CPT;}
 	public int getNumFathers() {
 		int count=0;

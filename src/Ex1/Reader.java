@@ -114,6 +114,43 @@ public class Reader {
 	    }
 	}
 	/**
+	 * Given mxlFile and a network, set the network's nodes' values.
+	 * @param xmlFile
+	 * @param network
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	public static void setNetworkValues(File xmlFile, Network network) throws SAXException, IOException, ParserConfigurationException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder dBuilder = factory.newDocumentBuilder();
+	    Document doc = dBuilder.parse(xmlFile);
+	    
+	    NodeList nList = doc.getElementsByTagName("VARIABLE");
+	    
+	    for (int i = 0; i < nList.getLength(); i++) {
+            Node nNode = nList.item(i);
+            String s = nNode.getTextContent();
+            String[] test = s.split("\n");
+            for (int j = 0; j < test.length; j++) {
+            	network.getNode(test[1].split("\t")[1]).setValues(test);
+            }
+	    }
+	}
+//	public static void setNodesNumOfBools(File xmlFile, Network network) throws SAXException, IOException, ParserConfigurationException {
+//		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//	    DocumentBuilder dBuilder = factory.newDocumentBuilder();
+//	    Document doc = dBuilder.parse(xmlFile);
+//	    NodeList nList = doc.getElementsByTagName("VARIABLE");
+//	    
+//	    for (int i = 0; i < nList.getLength(); i++) {
+//            Node nNode = nList.item(i);
+//            
+//            
+//	    }
+//	}
+	
+	/**
 	 * Read queries from input file for Bayes Ball.
 	 * @return queries Array of Strings
 	 * @throws FileNotFoundException
@@ -145,6 +182,38 @@ public class Reader {
 		return queries;
 	    
 	}
+	/**
+	 * Read queries from input file for Variable Elimination.
+	 * @return queries Array of Strings
+	 * @throws FileNotFoundException
+	 */
+	public static String[] readInputVE() throws FileNotFoundException{
+		File f = new File("data/input.txt");
+		Scanner sc = new Scanner(f);
+		String s = "";
+		int len = 0;
+		while (sc.hasNextLine()) {
+			s = sc.nextLine();
+	    	if(s.contains("|") && s.contains("P("))
+	    		len++;
+	    }
+		
+		sc.close();
+		sc = new Scanner(f);
+		s = "";
+		String[] queries = new String[len];
+		
+		for (int i = 0; sc.hasNextLine();) {
+			s = sc.nextLine();
+	    	if(s.contains("|") && s.contains("P(")) {
+	    		queries[i]=s;
+	    		i++;
+	    	}
+	    }
+		sc.close();
+		return queries;
+	    
+	}
 	
 	public static void main(String args[]) throws SAXException, IOException, ParserConfigurationException {
 		
@@ -163,17 +232,25 @@ public class Reader {
 	    
 	    setNetworkProbas(xmlFile, network);
 	    
-//	    for (int i = 0; i < network.getNetwork().length; i++) {
-//			BNode n = network.getNetwork()[i];
-//			System.out.println();
-//		}
+	    setNetworkValues(xmlFile, network);
 	    
-	    System.out.println(network);
-	    readInputBB();
-	    BayesBall b = new BayesBall(network);
-	    b.readQueries(readInputBB());
-	    System.out.println();
-	    CPT a = new CPT(network.getNode("A"));
-	    a.setBools();
+	    //System.out.println(network);
+	    
+	    //BNode n = network.getNode("A");
+	    Factor a = new Factor(network.getNode("J"));
+	    a.setVariables();
+	    //a.setFactorBooleans();
+	    //Utils.printBooleans(a.getFactorBooleans());
+	    //Utils.printDoubleArr(a.getFactorProbas());
+	    //Utils.printTogether(a.getFactorBooleans(), a.getFactorProbas());
+	    VariableElimination ve = new VariableElimination(network);
+	    ve.setFactors();
+	    ve.readQueries(readInputVE());
+	    for (int i = 0; i < ve.getFactors().length; i++) {
+	    	Factor temp = ve.getFactors()[i];
+			Utils.printTogether(temp.getFactorBooleans(), temp.getFactorProbas());
+			System.out.println();
+		}
+	    
 	}	    
 }
