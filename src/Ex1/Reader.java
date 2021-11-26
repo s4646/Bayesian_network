@@ -239,7 +239,7 @@ public class Reader {
 	    //System.out.println(network);
 	    
 	    //BNode n = network.getNode("A");
-	    Factor a = new Factor(network.getNode("J"));
+	    //Factor a = new Factor(network.getNode("J"));
 	    //a.setVariables();
 	    //a.setFactorBooleans();
 	    //Utils.printBooleans(a.getFactorBooleans());
@@ -257,6 +257,11 @@ public class Reader {
 	    //Utils.printHashMapArray(b.getCPT());
 	    //System.out.println(b.getCPT().get(0).keySet());
 	    //Utils.printHashMapArray(a.getTable());
-	    
+	    //Variable[] v = {new Variable(network.getNode("E")),new Variable(network.getNode("B")),new Variable(network.getNode("A"))};
+	    Factor x = f[2];
+	    Utils.printHashMapArray(x.getTable());
+	    ve.eliminate(x, new Variable(network.getNode("A")));
+	    ve.normalise(x);
+	    Utils.printHashMapArray(x.getTable());
 	}	    
 }

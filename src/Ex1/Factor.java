@@ -6,26 +6,34 @@ import java.util.HashMap;
 
 public class Factor {
 	private Network network;
-	//private BNode node;
 	private ArrayList<HashMap<String, String>> table;
-	//private double[] probabilities;
-	//private String[][] booleans;
 	private Variable[] variables;
 	
 	public Factor(BNode n) {
-		//node=n;
 		table=n.getCPT();
-		//setFactorBooleans(); // set Booleans
-		//setFactorProbas(); // set probabilities
 		variables = new Variable[n.getNumFathers()+1];
 		setVariables(n);
 	}
 	public Factor(Network n, Variable[] v) {
 		network=n;
-		//node=null;
 		variables=v;
-		//setFactorBooleans();
+		setVariables(v);
+		table = new ArrayList<HashMap<String, String>>();
+		setTable(v);
 	}
+	
+	public void setTable(Variable[] v) {
+		String[][] boolTable = Utils.CPTBooleanTable(v);
+		for (int i = 0; i < boolTable.length; i++) {
+			table.add(new HashMap<String,String>());
+		}
+		for (int i = 0; i < v.length; i++) {
+			for (int j = 0; j < table.size(); j++) {
+				table.get(j).put(v[i].getName(), boolTable[j][i]);
+			}
+		}
+	}
+	public void setTable(ArrayList<HashMap<String, String>> t) {table=t;}
 	
 	public void setVariables(BNode node) {
 		BNode[] temp = Utils.removeNull(node.getFathers());
