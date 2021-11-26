@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.Arrays;
 
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -110,7 +111,7 @@ public class Reader {
             //System.out.println(test.length);
             
             network.getNode(nNode2.getTextContent()).setProbs(s);
-            network.getNode(nNode2.getTextContent()).setCPT(s, test.length);
+            network.getNode(nNode2.getTextContent()).setCPT(s);
 	    }
 	}
 	/**
@@ -230,15 +231,16 @@ public class Reader {
 	    
 	    setNetworkConnections(xmlFile, network);
 	    
+	    setNetworkValues(xmlFile, network);
+
 	    setNetworkProbas(xmlFile, network);
 	    
-	    setNetworkValues(xmlFile, network);
 	    
 	    //System.out.println(network);
 	    
 	    //BNode n = network.getNode("A");
 	    Factor a = new Factor(network.getNode("J"));
-	    a.setVariables();
+	    //a.setVariables();
 	    //a.setFactorBooleans();
 	    //Utils.printBooleans(a.getFactorBooleans());
 	    //Utils.printDoubleArr(a.getFactorProbas());
@@ -246,11 +248,15 @@ public class Reader {
 	    VariableElimination ve = new VariableElimination(network);
 	    ve.setFactors();
 	    ve.readQueries(readInputVE());
-	    for (int i = 0; i < ve.getFactors().length; i++) {
-	    	Factor temp = ve.getFactors()[i];
-			Utils.printTogether(temp.getFactorBooleans(), temp.getFactorProbas());
-			System.out.println();
+	    Factor[] f = ve.getFactors();
+	    for (int i = 0; i < f.length; i++) {
+	    	Utils.printHashMapArray(f[i].getTable());
+	    	System.out.println("***");
 		}
+	    //BNode b = network.getNode("J");
+	    //Utils.printHashMapArray(b.getCPT());
+	    //System.out.println(b.getCPT().get(0).keySet());
+	    //Utils.printHashMapArray(a.getTable());
 	    
 	}	    
 }

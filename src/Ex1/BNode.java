@@ -1,11 +1,14 @@
 package Ex1;
 // Bayesian Node
+import java.util.ArrayList;
+import java.util.HashMap;
 public class BNode {
 	
 	private String name;
 	private String[] values;
 	private String probs;
-	private double[][] CPT;
+	//private double[][] CPT;
+	private ArrayList<HashMap<String, String>> CPT;
 	private BNode[] kids;
 	private BNode[] fathers;
 	private boolean isGiven;
@@ -15,6 +18,7 @@ public class BNode {
 	public BNode(String n, String p, int len) {
 		name = n;
 		probs = p;
+		CPT = new ArrayList<HashMap<String, String>>();
 		kids = new BNode[len];
 		fathers = new BNode[len];
 		isGiven=false;
@@ -55,27 +59,25 @@ public class BNode {
 	public void setProbs(String s) {
 		probs = s;
 	}
-	/**
-	 * Given a String of probabilities and the number of the probabilities, set this BNode's 2D array of probabilities.
-	 * @param probs String
-	 * @param len int
-	 */
-	public void setCPT(String probs, int len) {
-		int tmp = getNumFathers();
-		int numOfVars = tmp==0 ? 1 : tmp==1 ? 2 : tmp;
-		String[] test = probs.split(" ");
-		CPT = new double[len/numOfVars][];
-		
-		for (int i = 0; i < CPT.length; i++) { // Initiate 2D array of probabilities.
-			CPT[i] = new double[len/(len/numOfVars)];
+	
+	public void setCPT(String probabilities) {
+		String[] p = probabilities.split(" ");
+		for (int i = 0; i < p.length; i++) {
+			CPT.add(new HashMap<String,String>());
+			CPT.get(i).put("probability", p[i]);
 		}
-		
-		for (int i = 0; i < CPT.length; i++) {
-			for (int j = 0; j < CPT[i].length; j++) {
-				CPT[i][j] = Double.valueOf(test[numOfVars*i+j]);
+		String[][] boolTable = Utils.CPTBooleanTable(this);
+		int temp = getNumFathers();
+		for (int i = 0; i < CPT.size(); i++) {
+			for (int j = 0; j < temp; j++) {
+				CPT.get(i).put(fathers[j].name, boolTable[i][j]);
 			}
-		}	
+		}
+		for (int i = 0; i < CPT.size(); i++) {
+			CPT.get(i).put(name, boolTable[i][boolTable[0].length-1]);
+		}
 	}
+	
 	public void setValues(String[] arr) {
 		values = new String[arr.length-2];
 		for (int i = 0; i < values.length; i++) {
@@ -89,14 +91,13 @@ public class BNode {
 	
 	public String getName() {return name;}
 	public String getProbs() {return probs;}
-	public double[][] getProbsTable() {return CPT;}
 	public BNode[] getFathers() {return fathers;}
 	public BNode[] getKids() {return kids;}
 	public boolean getIsGiven() {return isGiven;}
 	public boolean getVisitedFromDad() {return visitedFromDad;}
 	public boolean getVisitedFromKid() {return visitedFromKid;}
 	public String[] getValues() {return values;}
-	public double[][] getCPT() {return CPT;}
+	public ArrayList<HashMap<String, String>> getCPT() {return CPT;}
 	public int getNumFathers() {
 		int count=0;
 		for (int i = 0; i < fathers.length; i++)

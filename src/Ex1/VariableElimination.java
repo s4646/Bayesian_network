@@ -15,30 +15,6 @@ public class VariableElimination {
 	}
 	public Factor[] getFactors() {return factors;}
 	
-	public void setEvidenceVarInFactors(String varName, String varBool) {
-		int index = -1;
-		for (int i = 0; i < factors.length; i++) {
-			Variable[] temp = factors[i].getVariables();
-			for (int j = 0; j < temp.length; j++) {
-				if(temp[j].getName().equals(varName)){
-					index=j;
-					removeVariableFromFactor(factors[i], index, varBool);
-					temp[j]=null;
-					factors[i].setVariables(Utils.removeNull(temp));
-					break;
-				}
-			}
-		}
-	}
-	public void removeVariableFromFactor(Factor f, int index, String varBool) {
-		String[][] temp = f.getFactorBooleans();
-		for (int i = 0; i < temp.length; i++) {
-			if(!temp[i][index].equals(varBool)) {
-				f.getFactorProbas()[i]=-1;
-			}
-		}
-	}
-	
 	public void readQueries(String[] queries) {
 		for (int i = 0; i < 1; i++) { // change to len
 			queries[i]=queries[i].substring(2);
@@ -49,17 +25,20 @@ public class VariableElimination {
 			String[] hidden = _hidden.split("-");
 			String[] evidence = new String[2*_evidence.split(",").length];
 			for (int j = 0; j < _evidence.split(",").length; j++) {
-				evidence[2*j]=_evidence.split(",")[j].split("=")[0];
-				evidence[2*j+1]=_evidence.split(",")[j].split("=")[1];
+				evidence[2*j]=_evidence.split(",")[j].split("=")[0]; // evidence variable
+				evidence[2*j+1]=_evidence.split(",")[j].split("=")[1]; // evidence value
 			}
 			executeQuery(queryVar,evidence,hidden);
 			//setFactors();
 		}
 	}
-	public void executeQuery(String queryVar, String[] evidence, String[] hidden) {
-		for (int i = 0; i < evidence.length-1; i++) { // set initial Factors for query
-			setEvidenceVarInFactors(evidence[i], evidence[i+1]);
-		}
+	public void join(Factor x, Factor y) {
 		
+	}
+	
+	public void executeQuery(String queryVar, String[] evidence, String[] hidden) {
+		for (int i = 0; i < factors.length; i++) { // set initial Factors for query
+			factors[i].removeEvidence(evidence);
+		}
 	}
 }

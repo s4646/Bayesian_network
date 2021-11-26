@@ -1,5 +1,8 @@
 package Ex1;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class Utils {
 
 	public static BNode[] removeNull(BNode[] arr) {
@@ -80,5 +83,83 @@ public class Utils {
 	public static BNode varToBNode(Network n, Variable v) {
 		BNode b = n.getNode(v.getName());
 		return b;
+	}
+	public static String[][] CPTBooleanTable(BNode node){
+		BNode[] tmp = removeNull(node.getFathers());
+		int[] valNum = new int[tmp.length];
+		int numOfOptions = 1;
+		String[][] booleans;
+		
+		for (int i = 0; i < valNum.length; i++) {
+			valNum[i]=tmp[i].getValues().length;
+			numOfOptions*=valNum[i];
+		}
+		numOfOptions*=node.getValues().length;
+		int temp = node.getNumFathers();
+		if(temp==0) {
+			booleans = new String[2][1];
+		}
+		else {
+			booleans = new String[numOfOptions][temp+1];
+		}
+		// Initialize last column.
+		int init = node.getValues().length;
+		for (int i = 0; i < booleans.length; i++) {
+			booleans[i][booleans[i].length-1] = node.getValues()[i%init];
+		}
+		// initialize rest of columns by initialized columns
+		for (int i = tmp.length-1; i > -1; i--) {
+			init = tmp[i].getValues().length;
+			String check1 = Utils.concatBooleans(booleans,i); // get combination
+			int k = 0;
+			for (int j = 0; j < booleans.length; j++) {
+				String check2 = Utils.concatBooleans(booleans[j],i);
+				if(check1.equals(check2)) {
+					String insert = tmp[i].getValues()[k%init]; // insert new boolean into combination
+					booleans[j][i] = insert;
+					k++;
+				}
+				else booleans[j][i] = booleans[j-1][i];
+			}
+		}
+		return booleans;
+	}
+	public static String[][] CPTBooleanTable(Variable[] variables){
+		Variable[] tmp = removeNull(variables);
+		int[] valNum = new int[tmp.length];
+		int numOfOptions = 1;
+		String[][] booleans;
+		
+		for (int i = 0; i < valNum.length; i++) {
+			valNum[i]=tmp[i].getValues().length;
+			numOfOptions*=valNum[i];
+		}
+		booleans = new String[numOfOptions][variables.length];
+		// Initialize last column.
+		int init = variables[variables.length-1].getValues().length;
+		for (int i = 0; i < booleans.length; i++) {
+			booleans[i][booleans[i].length-1] = variables[variables.length-1].getValues()[i%init];
+		}
+		// initialize rest of columns by initialized columns
+		for (int i = tmp.length-1; i > -1; i--) {
+			init = tmp[i].getValues().length;
+			String check1 = Utils.concatBooleans(booleans,i); // get combination
+			int k = 0;
+			for (int j = 0; j < booleans.length; j++) {
+				String check2 = Utils.concatBooleans(booleans[j],i);
+				if(check1.equals(check2)) {
+					String insert = tmp[i].getValues()[k%init]; // insert new boolean into combination
+					booleans[j][i] = insert;
+					k++;
+				}
+				else booleans[j][i] = booleans[j-1][i];
+			}
+		}
+		return booleans;
+	}	
+	public static void printHashMapArray(ArrayList<HashMap<String,String>> table) {
+		for (int i = 0; i < table.size(); i++) {
+			System.out.println(table.get(i)+"\n");
+		}
 	}
 }
