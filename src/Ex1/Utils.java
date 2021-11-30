@@ -27,6 +27,17 @@ public class Utils {
 		}
 		return ret;
 	}
+	public static Factor[] removeNull(Factor[] arr) {
+		int count=0;
+		for (int i = 0; i < arr.length; i++) {
+			if(arr[i]!=null) count++;
+		}
+		Factor[] ret = new Factor[count];
+		for (int i = 0; i < ret.length; i++) {
+			ret[i]=arr[i];
+		}
+		return ret;
+	}
 	public static String concatBooleans(String[][] vals, int fromWhere) {
 		String concat = "";
 		for (int i = fromWhere+1; i < vals[0].length; i++) {
@@ -161,5 +172,12 @@ public class Utils {
 		for (int i = 0; i < table.size(); i++) {
 			System.out.println(table.get(i)+"\n");
 		}
+	}
+	public static boolean isVarInTable(Factor x, Variable v) {
+		for (int i = 0; i < x.getVariables().length; i++) {
+			if(x.getVariables()[i].getName().equals(v.getName()))
+				return true;
+		}
+		return false;
 	}
 }

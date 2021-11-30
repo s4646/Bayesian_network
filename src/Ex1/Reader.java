@@ -236,7 +236,7 @@ public class Reader {
 	    setNetworkProbas(xmlFile, network);
 	    
 	    
-	    //System.out.println(network);
+	    System.out.println(network);
 	    
 	    //BNode n = network.getNode("A");
 	    //Factor a = new Factor(network.getNode("J"));
@@ -248,20 +248,20 @@ public class Reader {
 	    VariableElimination ve = new VariableElimination(network);
 	    ve.setFactors();
 	    ve.readQueries(readInputVE());
-	    Factor[] f = ve.getFactors();
-	    for (int i = 0; i < f.length; i++) {
-	    	Utils.printHashMapArray(f[i].getTable());
-	    	System.out.println("***");
-		}
+	    //Factor[] f = ve.getFactors();
+	    //for (int i = 0; i < f.length; i++) {
+//	    	Utils.printHashMapArray(f[i].getTable());
+//	    	System.out.println("***");
+//		}
 	    //BNode b = network.getNode("J");
 	    //Utils.printHashMapArray(b.getCPT());
 	    //System.out.println(b.getCPT().get(0).keySet());
 	    //Utils.printHashMapArray(a.getTable());
 	    //Variable[] v = {new Variable(network.getNode("E")),new Variable(network.getNode("B")),new Variable(network.getNode("A"))};
-	    Factor x = f[2];
-	    Utils.printHashMapArray(x.getTable());
-	    ve.eliminate(x, new Variable(network.getNode("A")));
-	    ve.normalise(x);
-	    Utils.printHashMapArray(x.getTable());
+//	    Factor x = f[2];
+//	    Utils.printHashMapArray(x.getTable());
+//	    ve.eliminate(x, new Variable(network.getNode("A")));
+//	    ve.normalise(x);
+//	    Utils.printHashMapArray(x.getTable());
 	}	    
 }

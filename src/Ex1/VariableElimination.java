@@ -1,6 +1,8 @@
 package Ex1;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class VariableElimination {
 	private Network network;
@@ -39,6 +41,7 @@ public class VariableElimination {
 		for (int i = 0; i < factors.length; i++) { // set initial Factors for query
 			factors[i].removeEvidence(evidence);
 		}
+		join(factors[3],factors[4]);
 		
 	
 	
@@ -46,9 +49,98 @@ public class VariableElimination {
 	
 	
 	public void join(Factor x, Factor y) {
-		
-		
+		// get common variables
+		ArrayList<Variable> commonVars = new ArrayList<Variable>();
+		for (int i = 0; i < x.getVariables().length; i++) {
+			for (int j = 0; j < y.getVariables().length; j++) {
+				if(x.getVariables()[i].getName().equals(y.getVariables()[j].getName()))
+					commonVars.add(x.getVariables()[i]);
+			}
+		}
+		// get all variables
+		ArrayList<Variable> allVars = new ArrayList<Variable>();
+		for (int i = 0; i < x.getVariables().length; i++) {
+			allVars.add(x.getVariables()[i]);
+		}
+		for (int i = 0; i < y.getVariables().length; i++) {
+			allVars.add(y.getVariables()[i]);
+		}
+		for (int i = 0; i < commonVars.size(); i++) {
+			for (int j = 0; j < allVars.size(); j++) {
+				if(commonVars.get(i).getName().equals(allVars.get(j).getName())) {
+					allVars.remove(j);
+					break;
+				}
+			}
+		}
+		// get not-common variables
+		ArrayList<Variable> notCommon = (ArrayList<Variable>) allVars.clone();
+		for (int i = 0; i < notCommon.size(); i++) {
+			for (int j = 0; j < commonVars.size(); j++) {
+				if(notCommon.get(i).getName().equals(commonVars.get(j).getName())) {
+					notCommon.remove(i);
+					break;
+				}
+			}
+		}
+		// set new factor z
+		Variable[] tmp = new Variable[allVars.size()];
+		Factor z = new Factor(tmp);
+		int zIndex=0;
+		for (int i = 0; i < tmp.length; i++) {tmp[i]=allVars.get(i);}
+		// set factor z's values and probabilities
+		String boolCombination;
+		String boolCombCheck;
+		for (int i = 0; i < x.getTable().size(); i++) {
+			boolCombination="";
+			ArrayList<HashMap<String, String>> xTable = x.getTable();
+			HashMap<String, String> xRow = xTable.get(i);
+			// get values of common variables from x
+			for (int j = 0; j < commonVars.size(); j++) {
+				boolCombination+=xRow.get(commonVars.get(j).getName());
+			}
+			
+			for (int j = 0; j < y.getTable().size(); j++) {
+				ArrayList<HashMap<String, String>> yTable = y.getTable();
+				HashMap<String, String> yRow = yTable.get(j);
+				boolCombCheck="";
+				// get values of common variables from y
+				for (int k = 0; k < commonVars.size(); k++) {
+					boolCombCheck+=yRow.get(commonVars.get(k).getName());
+				}
+				if(boolCombination.equals(boolCombCheck)) {
+					z.getTable().add(new HashMap<String, String>());
+					// add new row to z
+					// add common values
+					for (int k = 0; k < commonVars.size(); k++) {
+						String a = commonVars.get(k).getName();
+						String b = xRow.get(commonVars.get(k).getName());
+						z.getTable().get(zIndex).put(commonVars.get(k).getName(), xRow.get(commonVars.get(k).getName()));
+						//z.getTable().get(zIndex).put(commonVars.get(k).getName(), yRow.get(commonVars.get(j).getName()));
+					}
+					// add not common values
+					for (int k = 0; k < notCommon.size(); k++) {
+						if(Utils.isVarInTable(x, notCommon.get(k))) {
+							if(xRow.get(notCommon.get(j).getName())!=null)
+								z.getTable().get(zIndex).put(notCommon.get(k).getName(), xRow.get(notCommon.get(j).getName()));
+						}
+						if(Utils.isVarInTable(y, notCommon.get(k))) {
+							if(yRow.get(notCommon.get(j).getName())!=null)
+								z.getTable().get(zIndex).put(notCommon.get(k).getName(), yRow.get(notCommon.get(j).getName()));
+						}
+					}
+					// add probability
+					double xProb = Double.parseDouble(xRow.get("probability"));
+					double yProb = Double.parseDouble(yRow.get("probability"));
+					z.getTable().get(zIndex).put("probability", ""+(xProb*yProb));
+					zIndex++;
+					break;
+				}
+			}
+			
+		}
 	}
+	
 	public void eliminate(Factor x, Variable y) {
 		// create new factor without variable y
 		Variable[] test = x.getVariables();
@@ -88,6 +180,7 @@ public class VariableElimination {
 		x.setTable(a.getTable());
 		x.setVariables(a.getVariables());
 	}
+	
 	public void normalise(Factor x) {
 		double prob=0;
 		double temp;

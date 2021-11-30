@@ -26,6 +26,14 @@ public class Network {
 		}
 		return null;
 	}
+	
+	public void resetVisited() {
+		for (int i = 0; i < netArr.length; i++) {
+			netArr[i].setVisitedFromDad(false);
+			netArr[i].setVisitedFromKid(false);
+		}
+	}
+	
 	public BNode[] getNetwork() {return netArr;}
 	
 	public String toString() {

@@ -33,8 +33,11 @@ public class BayesBall {
 					givens[j].setIsGiven(true);
 				}
 				executeQuery(from, to, givens);
+				network.resetVisited();
 			}
-			else executeQuery(from, to);
+			else {
+				executeQuery(from, to);
+			}
 		}
 	}
 	/**

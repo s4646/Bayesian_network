@@ -21,6 +21,10 @@ public class Factor {
 		table = new ArrayList<HashMap<String, String>>();
 		setTable(v);
 	}
+	public Factor(Variable[] v) {
+		variables=v;
+		table = new ArrayList<HashMap<String, String>>();
+	}
 	
 	public void setTable(Variable[] v) {
 		String[][] boolTable = Utils.CPTBooleanTable(v);
