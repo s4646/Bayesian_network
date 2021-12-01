@@ -34,11 +34,21 @@ public class BayesBall {
 				}
 				executeQuery(from, to, givens);
 				network.resetVisited();
+				network.resetGiven();
 			}
 			else {
 				executeQuery(from, to);
 			}
 		}
+	}
+	public boolean executeQueryVE(BNode from, BNode to, BNode[] given) {
+		for (int j = 0; j < given.length; j+=2) {
+			given[j].setIsGiven(true);
+		}
+		boolean res = executeQuery(from,to,given);
+		network.resetVisited();
+		network.resetGiven();
+		return res;
 	}
 	/**
 	 * Execute query with given BNodes.

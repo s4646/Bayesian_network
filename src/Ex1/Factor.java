@@ -10,7 +10,11 @@ public class Factor {
 	private Variable[] variables;
 	
 	public Factor(BNode n) {
-		table=n.getCPT();
+		//table=n.getCPT();
+		table = new ArrayList<HashMap<String, String>>();
+		for (int i = 0; i < n.getCPT().size(); i++) {
+			table.add((HashMap<String, String>) n.getCPT().get(i).clone());
+		}
 		variables = new Variable[n.getNumFathers()+1];
 		setVariables(n);
 	}
@@ -78,6 +82,26 @@ public class Factor {
 		for (int i = 0; i < yesRemove.size(); i++) {
 			int temp = yesRemove.get(i);
 			table.remove(temp-(remCount++));
+		}
+	}
+	
+	public void removeIrrelvant() {
+		boolean isSame;
+		for (int i = 0; i < variables.length; i++) {
+			isSame=true;
+			for (int j = 1; j < table.size(); j++) {
+				if(!table.get(j).get(variables[i].getName()).equals(table.get(j-1).get(variables[i].getName()))) {
+					isSame=false;
+					break;
+				}
+			}
+			if(isSame) {
+				for (int j = 0; j < table.size(); j++) {
+					table.get(j).remove(variables[i].getName());
+				}
+				variables[i]=null;
+				variables = Utils.removeNull(variables);
+			}
 		}
 	}
 	

@@ -33,6 +33,11 @@ public class Network {
 			netArr[i].setVisitedFromKid(false);
 		}
 	}
+	public void resetGiven() {
+		for (int i = 0; i < netArr.length; i++) {
+			netArr[i].setIsGiven(false);
+		}
+	}
 	
 	public BNode[] getNetwork() {return netArr;}
 	

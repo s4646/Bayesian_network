@@ -11,8 +11,9 @@ public class Utils {
 			if(arr[i]!=null) count++;
 		}
 		BNode[] ret = new BNode[count];
-		for (int i = 0; i < ret.length; i++) {
-			ret[i]=arr[i];
+		int j=0;
+		for (int i = 0; i < arr.length; i++) {
+			if(arr[i]!=null) ret[j++]=arr[i];
 		}
 		return ret;
 	}
@@ -22,8 +23,9 @@ public class Utils {
 			if(arr[i]!=null) count++;
 		}
 		Variable[] ret = new Variable[count];
-		for (int i = 0; i < ret.length; i++) {
-			ret[i]=arr[i];
+		int j=0;
+		for (int i = 0; i < arr.length; i++) {
+			if(arr[i]!=null) ret[j++]=arr[i];
 		}
 		return ret;
 	}
@@ -33,8 +35,21 @@ public class Utils {
 			if(arr[i]!=null) count++;
 		}
 		Factor[] ret = new Factor[count];
-		for (int i = 0; i < ret.length; i++) {
-			ret[i]=arr[i];
+		int j=0;
+		for (int i = 0; i < arr.length; i++) {
+			if(arr[i]!=null) ret[j++]=arr[i];
+		}
+		return ret;
+	}
+	public static String[] removeNull(String[] arr) {
+		int count=0;
+		for (int i = 0; i < arr.length; i++) {
+			if(arr[i]!=null) count++;
+		}
+		String[] ret = new String[count];
+		int j=0;
+		for (int i = 0; i < arr.length; i++) {
+			if(arr[i]!=null) ret[j++]=arr[i];
 		}
 		return ret;
 	}
@@ -179,5 +194,37 @@ public class Utils {
 				return true;
 		}
 		return false;
+	}
+	public static boolean isVarInFactor(Factor x, String v) {
+		for (int i = 0; i < x.getVariables().length; i++) {
+			if(x.getVariables()[i].getName().equals(v))
+				return true;
+		}
+		return false;
+	}
+	public static int varAsciiSum(Factor f) {
+		String vars = "";
+		int sum=0;
+		char c;
+		for (int i = 0; i < f.getVariables().length; i++) {
+			vars+=f.getVariables()[i].getName();
+		}
+		for (int i = 0; i < vars.length(); i++) {
+			c=vars.charAt(i);
+			sum+=c;
+		}
+		return sum;
+	}
+	public static Factor[] sortBySize(Factor[] arr) {
+		for (int i = 0; i < arr.length-1; i++) {
+			 for (int j = 0; j < arr.length-i-1; j++) {
+				 if (arr[j].getTable().size()*arr[j].getTable().get(0).size() > arr[j+1].getTable().size()*arr[j+1].getTable().get(0).size()) {
+					 Factor temp = arr[j];
+	                 arr[j] = arr[j+1];
+	                 arr[j+1] = temp;
+				 }
+			 }       
+		}
+		return arr;
 	}
 }

@@ -13,14 +13,15 @@ public class VariableElimination {
 		factors = new Factor[n.getNetwork().length];
 	}
 	public void setFactors() {
-		for (int i = 0; i <network.getNetwork().length; i++) {
+		factors = new Factor[network.getNetwork().length];
+		for (int i = 0; i < factors.length; i++) {
 			factors[i] = new Factor(network.getNetwork()[i]);
 		}
 	}
 	public Factor[] getFactors() {return factors;}
 	
 	public void readQueries(String[] queries) {
-		for (int i = 0; i < 1; i++) { // change to len
+		for (int i = 0; i < queries.length; i++) { // change to len
 			queries[i]=queries[i].substring(2);
 			String queryVar = queries[i].split("\\|")[0];
 			String _evidence = queries[i].split("\\|")[1];
@@ -32,23 +33,87 @@ public class VariableElimination {
 				evidence[2*j]=_evidence.split(",")[j].split("=")[0]; // evidence variable
 				evidence[2*j+1]=_evidence.split(",")[j].split("=")[1]; // evidence value
 			}
+			
 			executeQuery(queryVar,evidence,hidden);
-			//setFactors();
+			setFactors();
 		}
 	}
 	
 	public void executeQuery(String queryVar, String[] evidence, String[] hidden) {
 		for (int i = 0; i < factors.length; i++) { // set initial Factors for query
 			factors[i].removeEvidence(evidence);
+			factors[i].removeIrrelvant();
 		}
-		join(factors[3],factors[4]);
-		
-	
-	
+		// remove irrelevant factors
+		removeIrrelevantFactors(removeIrrelevantHidden(queryVar, evidence, hidden));
+		factors = Utils.sortBySize(factors);
+		int i=0;
+		while(i<hidden.length) {
+			for (int j=0; j < factors.length;j++) {
+				for (int k = 0; k < factors.length; k++) {
+					if(j!=k && Utils.isVarInFactor(factors[j], hidden[i])==true && Utils.isVarInFactor(factors[k], hidden[i])==true) {
+						if(factors[j].getTable().size()<factors[k].getTable().size()) {
+							Factor tmp = join(factors[j],factors[k]);
+							factors[j] = tmp;
+							factors[k]=null;
+							factors = Utils.removeNull(factors);
+							factors = Utils.sortBySize(factors);
+							break;
+						}
+						else if (factors[j].getTable().size()>factors[k].getTable().size()) {
+							Factor tmp = join(factors[k],factors[j]);
+							factors[k] = tmp;
+							factors[j]=null;
+							factors = Utils.removeNull(factors);
+							factors = Utils.sortBySize(factors);
+							break;
+						}
+						else {
+							if(Utils.varAsciiSum(factors[j])<Utils.varAsciiSum(factors[j])) {
+								Factor tmp = join(factors[j],factors[k]);
+								factors[j] = tmp;
+								factors[k]=null;
+								factors = Utils.removeNull(factors);
+								factors = Utils.sortBySize(factors);
+								break;
+							}
+							else {
+								Factor tmp = join(factors[k],factors[j]);
+								factors[k] = tmp;
+								factors[j]=null;
+								factors = Utils.removeNull(factors);
+								factors = Utils.sortBySize(factors);
+								break;
+							}
+						}
+					}
+				}
+			}
+			for (int j = 0; j < factors.length; j++) {
+				if(Utils.isVarInFactor(factors[j], hidden[i]) && factors[j].getVariables().length>1) {
+					eliminate(factors[j], new Variable(network, hidden[i]));
+					break;
+				}
+			}
+			i++;
+		}
+		if(factors[0].getTable().size()<factors[1].getTable().size()) {
+			Factor tmp = join(factors[0],factors[1]);
+			factors[0] = tmp;
+			factors[1]=null;
+			factors = Utils.removeNull(factors);
+		}
+		else {
+			Factor tmp = join(factors[1],factors[0]);
+			factors[1] = tmp;
+			factors[0]=null;
+			factors = Utils.removeNull(factors);
+		}
+		normalise(factors[0]);
 	}
 	
 	
-	public void join(Factor x, Factor y) {
+	public Factor join(Factor x, Factor y) {
 		// get common variables
 		ArrayList<Variable> commonVars = new ArrayList<Variable>();
 		for (int i = 0; i < x.getVariables().length; i++) {
@@ -113,20 +178,20 @@ public class VariableElimination {
 					// add new row to z
 					// add common values
 					for (int k = 0; k < commonVars.size(); k++) {
-						String a = commonVars.get(k).getName();
-						String b = xRow.get(commonVars.get(k).getName());
 						z.getTable().get(zIndex).put(commonVars.get(k).getName(), xRow.get(commonVars.get(k).getName()));
 						//z.getTable().get(zIndex).put(commonVars.get(k).getName(), yRow.get(commonVars.get(j).getName()));
 					}
 					// add not common values
 					for (int k = 0; k < notCommon.size(); k++) {
 						if(Utils.isVarInTable(x, notCommon.get(k))) {
-							if(xRow.get(notCommon.get(j).getName())!=null)
-								z.getTable().get(zIndex).put(notCommon.get(k).getName(), xRow.get(notCommon.get(j).getName()));
+							if(xRow.get(notCommon.get(k).getName())!=null)
+								z.getTable().get(zIndex).put(notCommon.get(k).getName(), xRow.get(notCommon.get(k).getName()));
 						}
 						if(Utils.isVarInTable(y, notCommon.get(k))) {
-							if(yRow.get(notCommon.get(j).getName())!=null)
-								z.getTable().get(zIndex).put(notCommon.get(k).getName(), yRow.get(notCommon.get(j).getName()));
+							if(yRow.get(notCommon.get(k).getName())!=null) {
+								String temp = yRow.get(notCommon.get(k).getName());
+								z.getTable().get(zIndex).put(notCommon.get(k).getName(), yRow.get(notCommon.get(k).getName()));
+							}
 						}
 					}
 					// add probability
@@ -134,11 +199,11 @@ public class VariableElimination {
 					double yProb = Double.parseDouble(yRow.get("probability"));
 					z.getTable().get(zIndex).put("probability", ""+(xProb*yProb));
 					zIndex++;
-					break;
+					//break;
 				}
 			}
-			
 		}
+		return z;
 	}
 	
 	public void eliminate(Factor x, Variable y) {
@@ -190,6 +255,65 @@ public class VariableElimination {
 		for (int i = 0; i < x.getTable().size(); i++) {
 			temp=Double.parseDouble(x.getTable().get(i).get("probability"));
 			x.getTable().get(i).replace("probability", ""+(temp/prob));
+		}
+	}
+	
+	public ArrayList<String> removeIrrelevantHidden(String queryVar, String[] evidence, String[] hidden) {
+		BayesBall b = new BayesBall(network);
+		boolean relevant;
+		ArrayList<String> irrelevant = new ArrayList<String>();
+		// is hidden variable is ancestor of query and evidence variables?
+		int removed=0;
+		for (int i = 0; i < hidden.length; i++) {
+			relevant=true;
+			BNode from = network.getNode(hidden[i]);
+			BNode to = network.getNode(queryVar.split("=")[0]);
+			if(!b.executeQuery(network.getNode(hidden[i]), network.getNode(queryVar.split("=")[0]))) {
+				for (int j = 0; j < evidence.length; j+=2) {
+					BNode tmpEv = network.getNode(evidence[j]);
+					if(!b.executeQuery(network.getNode(hidden[i]), network.getNode(evidence[j]))){
+						relevant=false;
+					}
+				}
+			}
+			if(!relevant) {
+				irrelevant.add(hidden[i]);
+				hidden[i]=null;
+				hidden=Utils.removeNull(hidden);
+				removed++;
+			}
+		}
+		// is hidden variable cond. ind. of query variable?
+		BNode[] ev = new BNode[evidence.length];
+		for (int i = 0; i < ev.length; i++) {
+			ev[i] = network.getNode(evidence[i]);
+		}
+		for (int i = 0; i < hidden.length; i++) {
+			relevant=false;
+			BNode from = network.getNode(hidden[i]);
+			BNode to = network.getNode(queryVar.split("=")[0]);
+			if(b.executeQueryVE(network.getNode(hidden[i]), network.getNode(queryVar.split("=")[0]), ev)) {
+				relevant=true;
+			}
+			if(!relevant) {
+				irrelevant.add(hidden[i]);
+				hidden[i]=null;
+				hidden=Utils.removeNull(hidden);
+				removed++;
+			}
+		}
+		return irrelevant;
+	}
+	public void removeIrrelevantFactors(ArrayList<String> arr) {
+		int removed=0;
+		for (int i = 0; i < factors.length; i++) {
+			for (int j = 0; j < arr.size(); j++) {
+				if(Utils.isVarInFactor(factors[i], arr.get(j))){
+					factors[i]=null;
+					factors = Utils.removeNull(factors);
+					removed++;
+				}
+			}
 		}
 	}
 }
