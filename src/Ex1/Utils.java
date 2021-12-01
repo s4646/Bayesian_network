@@ -53,6 +53,14 @@ public class Utils {
 		}
 		return ret;
 	}
+	public static Factor[] removeOneRowFactors(Factor[] arr) {
+		for (int i = 0; i < arr.length; i++) {
+			if(arr[i].getTable().size()<=1)
+				arr[i]=null;
+		}
+		arr = removeNull(arr);
+		return arr;
+	}
 	public static String concatBooleans(String[][] vals, int fromWhere) {
 		String concat = "";
 		for (int i = fromWhere+1; i < vals[0].length; i++) {

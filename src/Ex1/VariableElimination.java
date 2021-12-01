@@ -40,12 +40,15 @@ public class VariableElimination {
 	}
 	
 	public void executeQuery(String queryVar, String[] evidence, String[] hidden) {
+		int mulNum=0;
+		int addNum=0;
 		for (int i = 0; i < factors.length; i++) { // set initial Factors for query
 			factors[i].removeEvidence(evidence);
 			factors[i].removeIrrelvant();
 		}
 		// remove irrelevant factors
 		removeIrrelevantFactors(removeIrrelevantHidden(queryVar, evidence, hidden));
+		hidden = Utils.removeNull(hidden);
 		factors = Utils.sortBySize(factors);
 		int i=0;
 		while(i<hidden.length) {
@@ -53,16 +56,14 @@ public class VariableElimination {
 				for (int k = 0; k < factors.length; k++) {
 					if(j!=k && Utils.isVarInFactor(factors[j], hidden[i])==true && Utils.isVarInFactor(factors[k], hidden[i])==true) {
 						if(factors[j].getTable().size()<factors[k].getTable().size()) {
-							Factor tmp = join(factors[j],factors[k]);
-							factors[j] = tmp;
+							mulNum+=join(factors[j],factors[k]);
 							factors[k]=null;
 							factors = Utils.removeNull(factors);
 							factors = Utils.sortBySize(factors);
 							break;
 						}
 						else if (factors[j].getTable().size()>factors[k].getTable().size()) {
-							Factor tmp = join(factors[k],factors[j]);
-							factors[k] = tmp;
+							mulNum+=join(factors[k],factors[j]);
 							factors[j]=null;
 							factors = Utils.removeNull(factors);
 							factors = Utils.sortBySize(factors);
@@ -70,16 +71,14 @@ public class VariableElimination {
 						}
 						else {
 							if(Utils.varAsciiSum(factors[j])<Utils.varAsciiSum(factors[j])) {
-								Factor tmp = join(factors[j],factors[k]);
-								factors[j] = tmp;
+								mulNum+=join(factors[j],factors[k]);
 								factors[k]=null;
 								factors = Utils.removeNull(factors);
 								factors = Utils.sortBySize(factors);
 								break;
 							}
 							else {
-								Factor tmp = join(factors[k],factors[j]);
-								factors[k] = tmp;
+								mulNum+=join(factors[k],factors[j]);
 								factors[j]=null;
 								factors = Utils.removeNull(factors);
 								factors = Utils.sortBySize(factors);
@@ -91,29 +90,42 @@ public class VariableElimination {
 			}
 			for (int j = 0; j < factors.length; j++) {
 				if(Utils.isVarInFactor(factors[j], hidden[i]) && factors[j].getVariables().length>1) {
-					eliminate(factors[j], new Variable(network, hidden[i]));
+					addNum+=eliminate(factors[j], new Variable(network, hidden[i]));
 					break;
 				}
 			}
+			factors = Utils.removeOneRowFactors(factors);
 			i++;
 		}
-		if(factors[0].getTable().size()<factors[1].getTable().size()) {
-			Factor tmp = join(factors[0],factors[1]);
-			factors[0] = tmp;
-			factors[1]=null;
-			factors = Utils.removeNull(factors);
+		if(factors.length>1) {
+			if(factors[0].getTable().size()<factors[1].getTable().size()) {
+				mulNum+=join(factors[0],factors[1]);
+				factors[1]=null;
+				factors = Utils.removeNull(factors);
+			}
+			else {
+				mulNum+=join(factors[1],factors[0]);
+				factors[0]=null;
+				factors = Utils.removeNull(factors);
+			}
+			normalise(factors[0]);
 		}
 		else {
-			Factor tmp = join(factors[1],factors[0]);
-			factors[1] = tmp;
-			factors[0]=null;
-			factors = Utils.removeNull(factors);
+			normalise(factors[0]);			
 		}
-		normalise(factors[0]);
+		addNum++;
+		for (int j = 0; j < factors[0].getTable().size(); j++) {
+			if(factors[0].getTable().get(j).get(queryVar.split("=")[0]).equals(queryVar.split("=")[1])) {
+				double d = Math.round(Double.parseDouble(factors[0].getTable().get(j).get("probability")) * 100000.0)/100000.0;
+				System.out.println(d+", "+addNum+", "+mulNum);
+				break;
+			}
+		}
 	}
 	
 	
-	public Factor join(Factor x, Factor y) {
+	public int join(Factor x, Factor y) {
+		int mulNum=0;
 		// get common variables
 		ArrayList<Variable> commonVars = new ArrayList<Variable>();
 		for (int i = 0; i < x.getVariables().length; i++) {
@@ -195,18 +207,23 @@ public class VariableElimination {
 						}
 					}
 					// add probability
-					double xProb = Double.parseDouble(xRow.get("probability"));
+					double xProb = Float.parseFloat(xRow.get("probability"));
 					double yProb = Double.parseDouble(yRow.get("probability"));
 					z.getTable().get(zIndex).put("probability", ""+(xProb*yProb));
 					zIndex++;
+					mulNum++;
 					//break;
 				}
 			}
 		}
-		return z;
+		x.setTable(z.getTable());
+		x.setVariables(z.getVariables());
+		return mulNum;
 	}
 	
-	public void eliminate(Factor x, Variable y) {
+	public int eliminate(Factor x, Variable y) {
+		int addNum=0;
+		int countRows=0;
 		// create new factor without variable y
 		Variable[] test = x.getVariables();
 		ArrayList<String> varNames = new ArrayList<String>();
@@ -237,6 +254,7 @@ public class VariableElimination {
 				}
 				if(boolCombCheck.equals(boolCombination)) {
 					prob+=Double.parseDouble(x.getTable().get(j).get("probability"));
+					if((++countRows)%2==0) addNum++;
 				}
 			}
 			a.getTable().get(i).put("probability",""+prob);
@@ -244,6 +262,7 @@ public class VariableElimination {
 		}
 		x.setTable(a.getTable());
 		x.setVariables(a.getVariables());
+		return addNum;
 	}
 	
 	public void normalise(Factor x) {
