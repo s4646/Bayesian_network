@@ -1,4 +1,3 @@
-package Ex1;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
@@ -156,8 +155,8 @@ public class Reader {
 	 * @return queries Array of Strings
 	 * @throws FileNotFoundException
 	 */
-	public static String[] readInputBB() throws FileNotFoundException{
-		File f = new File("data/input.txt");
+	public static String[] readInputBB(File input) throws FileNotFoundException{
+		File f = input;
 		Scanner sc = new Scanner(f);
 		String s = "";
 		int len = 0;
@@ -188,8 +187,8 @@ public class Reader {
 	 * @return queries Array of Strings
 	 * @throws FileNotFoundException
 	 */
-	public static String[] readInputVE() throws FileNotFoundException{
-		File f = new File("data/input.txt");
+	public static String[] readInputVE(File input) throws FileNotFoundException{
+		File f = input;
 		Scanner sc = new Scanner(f);
 		String s = "";
 		int len = 0;
@@ -217,27 +216,27 @@ public class Reader {
 	}
 	
 	public static void main(String args[]) throws SAXException, IOException, ParserConfigurationException {
-		
-		File xmlFile = new File("data/alarm_net.xml");
-		
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder dBuilder = factory.newDocumentBuilder();
-	    Document doc = dBuilder.parse(xmlFile);
-	    
-	    NodeList nList = doc.getElementsByTagName("NAME");
-	    Network network = new Network(nList.getLength());
-	    
-	    setNetworkNodes(xmlFile, network);
-	    
-	    setNetworkConnections(xmlFile, network);
-	    
-	    setNetworkValues(xmlFile, network);
-
-	    setNetworkProbas(xmlFile, network);
-	    
-	    
-	    System.out.println(network);
-	    
+//		
+//		File xmlFile = new File("data/alarm_net.xml");
+//		
+//		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//	    DocumentBuilder dBuilder = factory.newDocumentBuilder();
+//	    Document doc = dBuilder.parse(xmlFile);
+//	    
+//	    NodeList nList = doc.getElementsByTagName("NAME");
+//	    Network network = new Network(nList.getLength());
+//	    
+//	    setNetworkNodes(xmlFile, network);
+//	    
+//	    setNetworkConnections(xmlFile, network);
+//	    
+//	    setNetworkValues(xmlFile, network);
+//
+//	    setNetworkProbas(xmlFile, network);
+//	    
+//	    
+//	    System.out.println(network);
+//	    
 	    //BNode n = network.getNode("A");
 	    //Factor a = new Factor(network.getNode("J"));
 	    //a.setVariables();

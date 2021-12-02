@@ -1,4 +1,3 @@
-package Ex1;
 import java.util.Stack;
 // Bayes Ball Algorithm
 public class BayesBall {
@@ -75,6 +74,8 @@ public class BayesBall {
 			//System.out.println(temp.getName());
 			if(temp.getBNode().equals(to)) {
 				//System.out.println(true);
+				while(!s2.isEmpty())
+					s2.pop();
 				return true;				
 			}
 			
@@ -132,6 +133,8 @@ public class BayesBall {
 			}
 		}
 		//System.out.println(false);
+		while(!s2.isEmpty())
+			s2.pop();
 		return false;
 	}
 	/**

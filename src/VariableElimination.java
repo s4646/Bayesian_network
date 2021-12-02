@@ -1,5 +1,3 @@
-package Ex1;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,13 +28,29 @@ public class VariableElimination {
 			String _hidden = queries[i].split("\\) ")[1];
 			String[] hidden = _hidden.split("-");
 			String[] evidence = new String[2*_evidence.split(",").length];
-			for (int j = 0; j < _evidence.split(",").length; j++) {
+			if(_evidence.length()<=1) {
+				res+=executeQuery(queryVar.split("=")[0])+"\n";
+				setFactors();
+			}
+			for (int j = 0; j < _evidence.split(",").length && _evidence.length()>1; j++) {
 				evidence[2*j]=_evidence.split(",")[j].split("=")[0]; // evidence variable
 				evidence[2*j+1]=_evidence.split(",")[j].split("=")[1]; // evidence value
 			}
-			
-			res+=executeQuery(queryVar,evidence,hidden)+"\n";
-			setFactors();
+			if(_evidence.length()>1) {
+				res+=executeQuery(queryVar,evidence,hidden)+"\n";
+				setFactors();	
+			}
+		}
+		return res;
+	}
+	
+	public String executeQuery(String queryVar) {
+		String res="";
+		for (int i = 0; i < factors.length; i++) {
+			if(factors[i].getVariables().length==1 && Utils.isVarInFactor(factors[i],queryVar)) {
+				double d = Math.round(Double.parseDouble(factors[0].getTable().get(i).get("probability")) * 100000.0)/100000.0;
+				res = d+",0,0";
+				}
 		}
 		return res;
 	}
@@ -50,8 +64,11 @@ public class VariableElimination {
 			factors[i].removeIrrelvant();
 		}
 		// remove irrelevant factors
-		removeIrrelevantFactors(removeIrrelevantHidden(queryVar, evidence, hidden));
+		ArrayList<String> irrelevant = getIrrelevantHidden(queryVar, evidence, hidden);
+		hidden = removeIrrelevantHidden(irrelevant, hidden);
+		removeIrrelevantFactors(irrelevant);
 		hidden = Utils.removeNull(hidden);
+		//hidden = sortByASCII(hidden);
 		factors = Utils.sortBySize(factors);
 		int i=0;
 		while(i<hidden.length) {
@@ -101,6 +118,20 @@ public class VariableElimination {
 			i++;
 		}
 		if(factors.length>1) {
+			Factor x=null;
+			Factor y=null;
+			for (int j = 0; j < factors.length; j++) {
+				if(x==null && Utils.isVarInFactor(factors[j],queryVar.split("=")[0])) {
+					x = factors[j];
+					continue;
+				}
+				if(y==null && Utils.isVarInFactor(factors[j],queryVar.split("=")[0])) {
+					y = factors[j];
+					continue;
+				}
+			}
+			factors[0]=x;
+			factors[1]=y;
 			if(factors[0].getTable().size()<factors[1].getTable().size()) {
 				mulNum+=join(factors[0],factors[1]);
 				factors[1]=null;
@@ -116,19 +147,18 @@ public class VariableElimination {
 		else {
 			normalise(factors[0]);			
 		}
-		addNum++;
+		addNum+=factors[0].getTable().size()-1;
 		for (int j = 0; j < factors[0].getTable().size(); j++) {
 			if(factors[0].getTable().get(j).get(queryVar.split("=")[0]).equals(queryVar.split("=")[1])) {
 				double d = Math.round(Double.parseDouble(factors[0].getTable().get(j).get("probability")) * 100000.0)/100000.0;
 				//System.out.println(d+", "+addNum+", "+mulNum);
-				res = d+", "+addNum+", "+mulNum;
+				res = d+","+addNum+","+mulNum;
 				break;
 			}
 		}
 		return res;
 	}
-	
-	
+
 	public int join(Factor x, Factor y) {
 		int mulNum=0;
 		// get common variables
@@ -282,30 +312,39 @@ public class VariableElimination {
 		}
 	}
 	
-	public ArrayList<String> removeIrrelevantHidden(String queryVar, String[] evidence, String[] hidden) {
+	public ArrayList<String> getIrrelevantHidden(String queryVar, String[] evidence, String[] hidden) {
 		BayesBall b = new BayesBall(network);
 		boolean relevant;
+		boolean relevant2;
 		ArrayList<String> irrelevant = new ArrayList<String>();
 		// is hidden variable is ancestor of query and evidence variables?
 		int removed=0;
 		for (int i = 0; i < hidden.length; i++) {
 			relevant=true;
+			relevant2=false;
+			boolean[] isAncestorOfevidence = new boolean[evidence.length/2];
 			BNode from = network.getNode(hidden[i]);
 			BNode to = network.getNode(queryVar.split("=")[0]);
 			if(!b.executeQuery(network.getNode(hidden[i]), network.getNode(queryVar.split("=")[0]))) {
 				for (int j = 0; j < evidence.length; j+=2) {
 					BNode tmpEv = network.getNode(evidence[j]);
-					if(!b.executeQuery(network.getNode(hidden[i]), network.getNode(evidence[j]))){
-						relevant=false;
-					}
+					isAncestorOfevidence[j/2]=b.executeQuery(network.getNode(hidden[i]), network.getNode(evidence[j]));
 				}
 			}
-			if(!relevant) {
-				irrelevant.add(hidden[i]);
-				hidden[i]=null;
-				hidden=Utils.removeNull(hidden);
-				removed++;
+			for (int j = 0; j < isAncestorOfevidence.length; j++) {
+				if (isAncestorOfevidence[j]) {
+					relevant2=true;
+					break;
+				}
 			}
+			if(!relevant && !relevant2) {
+				irrelevant.add(hidden[i]);
+				//hidden[i]=null;
+				//hidden=Utils.removeNull(hidden);
+				removed++;
+				break;
+			}
+			
 		}
 		// is hidden variable cond. ind. of query variable?
 		BNode[] ev = new BNode[evidence.length];
@@ -321,12 +360,23 @@ public class VariableElimination {
 			}
 			if(!relevant) {
 				irrelevant.add(hidden[i]);
-				hidden[i]=null;
-				hidden=Utils.removeNull(hidden);
+				//hidden[i]=null;
+				//hidden=Utils.removeNull(hidden);
 				removed++;
 			}
 		}
 		return irrelevant;
+	}
+	public String[] removeIrrelevantHidden(ArrayList<String> irrelevant, String[] hidden) {
+		for (int i = 0; i < hidden.length; i++) {
+			for (int j = 0; j < irrelevant.size(); j++) {
+				if(irrelevant.get(j).equals(hidden[i])){
+					hidden[i]=null;
+					break;
+				}
+			}
+		}
+		return hidden;
 	}
 	public void removeIrrelevantFactors(ArrayList<String> arr) {
 		int removed=0;
@@ -339,5 +389,25 @@ public class VariableElimination {
 				}
 			}
 		}
+	}
+	public String[] sortByASCII(String[] arr) {
+		for (int i = 0; i < arr.length-1; i++) {
+			 for (int j = 0; j < arr.length-i-1; j++) {
+				 int sum1=0;
+				 int sum2=0;
+				 for (int k = 0; k < arr[j].length(); k++) {
+					sum1+=arr[j].codePointAt(k);
+				 }
+				 for (int k = 0; k < arr[j+1].length(); k++) {
+						sum1+=arr[j+1].codePointAt(k);
+				 }
+				 if(sum1>sum2) {
+					 String temp = arr[j+1];
+					 arr[j+1]=arr[j];
+					 arr[j]=temp;
+				 }
+			 }
+		}
+		return arr;
 	}
 }

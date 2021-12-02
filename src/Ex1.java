@@ -1,5 +1,3 @@
-package Ex1;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,14 +15,14 @@ import org.xml.sax.SAXException;
 public class Ex1 {
 
 	
-	public static void WriteBB(BayesBall b, File output, FileOutputStream ops) throws IOException {
-		String res = b.readQueries(Reader.readInputBB());
+	public static void WriteBB(BayesBall b, File input, File output, FileOutputStream ops) throws IOException {
+		String res = b.readQueries(Reader.readInputBB(input));
 		byte[] strToBytes = res.getBytes();
 		ops.write(strToBytes);
 		System.out.print("Bayes Ball content written successfully\n");
 	}
-	public static void WriteVE(VariableElimination ve, File output, FileOutputStream ops) throws IOException {
-		String res = ve.readQueries(Reader.readInputVE());
+	public static void WriteVE(VariableElimination ve, File input, File output, FileOutputStream ops) throws IOException {
+		String res = ve.readQueries(Reader.readInputVE(input));
 		byte[] strToBytes = res.getBytes();
 		ops.write(strToBytes);
 		System.out.print("Variable Elimination content written successfully\n");
@@ -32,8 +30,8 @@ public class Ex1 {
 	
 	public static void main(String[] args) throws IOException, SAXException, IOException, ParserConfigurationException {
 		// TODO Auto-generated method stub
-		File input = new File("data/input.txt");
-	    File output = new File("data/output.txt");
+		File input = new File("input.txt");
+	    File output = new File("output.txt");
 	    if (output.createNewFile())
 	    	System.out.println("Output file created: " + output.getName()); 
 	    else
@@ -42,7 +40,7 @@ public class Ex1 {
 	    FileOutputStream outputStream = new FileOutputStream(output);
 	    
 	    Scanner sc = new Scanner(input);
-	    File xmlFile = new File("data/"+sc.next());
+	    File xmlFile = new File(sc.next());
 	    sc.close();
 	    
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -56,13 +54,13 @@ public class Ex1 {
 	    Reader.setNetworkConnections(xmlFile, network);
 	    Reader.setNetworkValues(xmlFile, network);
 	    Reader.setNetworkProbas(xmlFile, network);
-	    //System.out.println(network);
+	    System.out.println(network);
 	    
 	    BayesBall b = new BayesBall(network);
-	    WriteBB(b,output, outputStream);
+	    WriteBB(b, input, output, outputStream);
 	    VariableElimination ve = new VariableElimination(network);
 	    ve.setFactors();
-	    WriteVE(ve,output,outputStream);
+	    WriteVE(ve, input, output,outputStream);
 	    outputStream.close();
 	}
 }

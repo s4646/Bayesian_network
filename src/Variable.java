@@ -1,5 +1,3 @@
-package Ex1;
-
 public class Variable {
 	private Network network;
 	private String name;

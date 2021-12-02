@@ -1,4 +1,3 @@
-package Ex1;
 // Bayesian Node
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,4 +1,3 @@
-package Ex1;
 // Bayes Ball Node
 public class BBNode {
 	
