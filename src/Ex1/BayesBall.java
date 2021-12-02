@@ -15,8 +15,11 @@ public class BayesBall {
 	 * Given array of queries, read and execute them.
 	 * @param queries Array of Strings
 	 */
-	public void readQueries(String[] queries) {
+	public String readQueries(String[] queries) {
+		String output="";
+		boolean res=false;
 		for (int i = 0; i < queries.length; i++) {
+			res=false;
 			String[] split = queries[i].split("\\|");
 			String vars = split[0];
 			String givensStr = "";
@@ -32,14 +35,19 @@ public class BayesBall {
 					givens[j]= network.getNode(test[j].split("=")[0]);
 					givens[j].setIsGiven(true);
 				}
-				executeQuery(from, to, givens);
+				res = executeQuery(from, to, givens);
 				network.resetVisited();
 				network.resetGiven();
 			}
 			else {
-				executeQuery(from, to);
+				res = executeQuery(from, to);
 			}
+			if(res)
+				output+="no\n";
+			else
+				output+="yes\n";
 		}
+		return output;
 	}
 	public boolean executeQueryVE(BNode from, BNode to, BNode[] given) {
 		for (int j = 0; j < given.length; j+=2) {
@@ -66,7 +74,7 @@ public class BayesBall {
 			BBNode temp = s2.pop();
 			//System.out.println(temp.getName());
 			if(temp.getBNode().equals(to)) {
-				System.out.println(true);
+				//System.out.println(true);
 				return true;				
 			}
 			
@@ -123,7 +131,7 @@ public class BayesBall {
 				}
 			}
 		}
-		System.out.println(false);
+		//System.out.println(false);
 		return false;
 	}
 	/**
@@ -139,7 +147,7 @@ public class BayesBall {
 		while(!s1.isEmpty()) {
 			BNode temp = s1.pop();
 			if(temp==to) {
-				System.out.println(true);
+				//System.out.println(true);
 				return true;				
 			}
 			BNode[] kids = temp.getKids();
@@ -148,7 +156,7 @@ public class BayesBall {
 					s1.push(kids[i]);
 			}
 		}
-		System.out.println(false);
+		//System.out.println(false);
 		return false;
 	}
 	

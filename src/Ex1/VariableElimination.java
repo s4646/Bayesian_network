@@ -20,7 +20,8 @@ public class VariableElimination {
 	}
 	public Factor[] getFactors() {return factors;}
 	
-	public void readQueries(String[] queries) {
+	public String readQueries(String[] queries) {
+		String res ="";
 		for (int i = 0; i < queries.length; i++) { // change to len
 			queries[i]=queries[i].substring(2);
 			String queryVar = queries[i].split("\\|")[0];
@@ -34,14 +35,16 @@ public class VariableElimination {
 				evidence[2*j+1]=_evidence.split(",")[j].split("=")[1]; // evidence value
 			}
 			
-			executeQuery(queryVar,evidence,hidden);
+			res+=executeQuery(queryVar,evidence,hidden)+"\n";
 			setFactors();
 		}
+		return res;
 	}
 	
-	public void executeQuery(String queryVar, String[] evidence, String[] hidden) {
+	public String executeQuery(String queryVar, String[] evidence, String[] hidden) {
 		int mulNum=0;
 		int addNum=0;
+		String res = "";
 		for (int i = 0; i < factors.length; i++) { // set initial Factors for query
 			factors[i].removeEvidence(evidence);
 			factors[i].removeIrrelvant();
@@ -117,10 +120,12 @@ public class VariableElimination {
 		for (int j = 0; j < factors[0].getTable().size(); j++) {
 			if(factors[0].getTable().get(j).get(queryVar.split("=")[0]).equals(queryVar.split("=")[1])) {
 				double d = Math.round(Double.parseDouble(factors[0].getTable().get(j).get("probability")) * 100000.0)/100000.0;
-				System.out.println(d+", "+addNum+", "+mulNum);
+				//System.out.println(d+", "+addNum+", "+mulNum);
+				res = d+", "+addNum+", "+mulNum;
 				break;
 			}
 		}
+		return res;
 	}
 	
 	

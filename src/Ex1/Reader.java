@@ -245,9 +245,9 @@ public class Reader {
 	    //Utils.printBooleans(a.getFactorBooleans());
 	    //Utils.printDoubleArr(a.getFactorProbas());
 	    //Utils.printTogether(a.getFactorBooleans(), a.getFactorProbas());
-	    VariableElimination ve = new VariableElimination(network);
-	    ve.setFactors();
-	    ve.readQueries(readInputVE());
+	    //VariableElimination ve = new VariableElimination(network);
+	    //ve.setFactors();
+	    //ve.readQueries(readInputVE());
 	    //Factor[] f = ve.getFactors();
 	    //for (int i = 0; i < f.length; i++) {
 //	    	Utils.printHashMapArray(f[i].getTable());
